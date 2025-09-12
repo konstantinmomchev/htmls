@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Православен календар</title>
+    <style>
+        /* Mobile First Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Garamond, Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: white;
+            font-size: 14px;
+        }
+
+        .calendar-container {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 5px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #09112e;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            word-wrap: break-word;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .calendar-table th {
+            background-color: lightgray;
+            color: black;
+            padding: 8px 4px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            font-size: 10px;
+            word-break: break-word;
+        }
+
+        .calendar-table td {
+            border: 1px solid #ddd;
+            width: 14.28%;
+            height: 80px;
+            vertical-align: top;
+            padding: 4px;
+            position: relative;
+            background-color: #fefefe;
+        }
+
+        .day-header {
+            display: flex;
+            flex-direction: row-reverse; /* Right-align number, symbol left */
+            align-items: flex-start;
+            margin-bottom: 3px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .day-number {
+            margin-left: 4px; /* Space between symbol and number */
+            margin-right: 0;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .today .day-number {
+            color: #2656fb;
+            border: 2px solid #2656fb;
+            border-radius: 12px;
+            padding: 2px 4px;
+            display: inline-block;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(41,41,239,0.08);
+            background: none;
+        }
+
+        .celebration-day .day-number {
+            color: red !important; /* Dark Red */
+        }
+
+        .selected-day {
+            border: 2px solid #000 !important;
+            box-sizing: border-box;
+        }
+
+
+        .fasting-icons {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 2px;
+            gap: 2px;
+            align-self: center
+        }
+ƒ
+        .fasting-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            position: relative;
+            background-color: transparent;
+        }
+
+        .fish-icon::before {
+            font-size: 16px;
+            color: rgba(165, 42, 42, 0.41);
+            position: absolute;
+            top: -2px;
+            left: -1px;
+        }
+
+        .oil-icon::before {
+            font-size: 16px;
+            color: rgba(255, 230, 0, 0.54);
+            position: absolute;
+            top: -2px;
+            left: -1px;
+        }
+        .fish-icon {
+            color: #1976d2 !important; /* Blue */
+        }
+        .oil-icon {
+            color: #b87333 !important; /* Bronze */
+        }
+        .strict-icon {
+            color: #8B0000 !important; /* Dark Red */
+        }
+        .fish-allowed-text {
+            color: #2656fb;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .oil-allowed-text {
+            color: #b87333;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .strict-fasting-text {
+            color: red;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .no-fasting-text {
+            color: black;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .feasts-list h2 {
+            color: #8B4513;
+            border-bottom: 2px solid #8B4513;
+            padding-bottom: 8px;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .feast-item {
+            padding: 12px;
+            margin-bottom: 12px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #8B4513;
+            border-radius: 4px;
+        }
+
+        .feast-date {
+            font-weight: bold;
+            color: darkblue;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .feast-title {
+            font-size: 14px;
+            font-weight: normal;
+            color: darkblue;
+            margin: 5px 0;
+        }
+        .other-month .day-number {
+            color: #bbb !important;
+        }
+
+
+        .error {
+            color: red;
+            text-align: center;
+            padding: 15px;
+            background-color: #ffe6e6;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+                font-size: 16px;
+            }
+
+            .calendar-container {
+                max-width: 800px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+                margin-bottom: 25px;
+            }
+
+            .calendar-table {
+                font-size: 14px;
+                margin-bottom: 25px;
+            }
+
+            .calendar-table th {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+
+            .calendar-table td {
+                height: 80px;
+                padding: 2px;
+            }
+
+            .day-number {
+                font-size: 20px;
+                margin-right: 6px;
+            }
+
+            .fasting-icon {
+                width: 14px;
+                height: 14px;
+            }
+
+            .fish-icon::before,
+            .oil-icon::before {
+                font-size: 32px;
+            }
+
+
+            .feasts-list h2 {
+                font-size: 1.5em;
+            }
+
+            .feast-title {
+                font-size: 16px;
+            }
+
+            /* In your <style> section */
+            .feast-symbol {
+                font-size: 18px;
+                margin-right: 0;
+                margin-left: 0;
+                vertical-align: middle;
+                pointer-events: none;
+                position: static; /* Remove absolute positioning */
+            }
+            .calendar-table td {
+                position: relative;
+            }
+
+            .other-month .day-number {
+                color: #bbb !important;
+            }
+
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .calendar-container {
+                max-width: 1000px;
+                padding: 5px;
+            }
+
+            h1 {
+                font-size: 2.5em;
+                margin-bottom: 30px;
+            }
+
+            .calendar-table {
+                margin-bottom: 30px;
+            }
+
+            .calendar-table th {
+                padding: 15px;
+                font-size: 14px;
+            }
+
+            .calendar-table td {
+                height: 120px;
+                padding: 8px;
+            }
+
+            .day-header {
+                margin-bottom: 5px;
+            }
+
+            .day-number {
+                font-size: 24px;
+                margin-right: 8px;
+            }
+
+            .fasting-icons {
+                gap: 3px;
+            }
+
+            .fasting-icon {
+                width: 16px;
+                height: 16px;
+                border-radius: 3px;
+            }
+
+            .fish-icon::before,
+            .oil-icon::before {
+                font-size: 16px;
+                top: -2px;
+                left: -1px;
+            }
+
+            .feasts-list h2 {
+                font-size: 1.6em;
+                padding-bottom: 10px;
+            }
+
+            .feast-item {
+                padding: 15px;
+            }
+
+            .feast-date {
+                font-size: 14px;
+            }
+
+            .feast-title {
+                font-size: 17px;
+            }
+
+            .feast-description {
+                font-size: 14px;
+            }
+
+            .other-month .day-number {
+                color: #bbb !important;
+            }
+        }
+
+        /* Large Desktop Styles */
+        @media (min-width: 1200px) {
+            .calendar-container {
+                max-width: 1200px;
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 2.8em;
+            }
+
+            .calendar-table td {
+                height: 130px;
+                padding: 10px;
+            }
+
+            .feast-name {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;">
+            <button id="prev-month" style="font-size: large; font-weight: bold; background: none; border: none; cursor: pointer;">&#x25C0;</button>
+            <h1 id="month-year" style="margin: 0 10px;"></h1>
+            <button id="next-month" style="font-size: large; font-weight: bold; background: none; border: none; cursor: pointer;"> &#x25B6; </button>
+        </div>
+
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>Пн</th>
+                    <th>Вт</th>
+                    <th>Ср</th>
+                    <th>Чет</th>
+                    <th>Пет</th>
+                    <th>Сб</th>
+                    <th>Нед</th>
+                </tr>
+            </thead>
+            <tbody id="calendar-body">
+            </tbody>
+        </table>
+        <div id="selected-feast" class="feast-item" style="display:none; margin-bottom:20px;"></div>
+
+    </div>
+
+    <script>
+        class OrthodoxCalendar {
+            constructor() {
+                this.currentDate = new Date();
+                this.currentMonth = this.currentDate.getMonth();
+                this.currentYear = this.currentDate.getFullYear();
+                this.feasts = [];
+                this.selectedCell = null; // Track selected cell
+                this.init();
+
+                //support for next and previous month buttons
+                document.getElementById('prev-month').addEventListener('click', () => {
+                    this.changeMonth(-1);
+                });
+                document.getElementById('next-month').addEventListener('click', () => {
+                    this.changeMonth(1);
+                });
+            }
+
+            async init() {
+                this.updateMonthDisplay();
+                await this.loadFeasts();
+                this.generateCalendar();
+            }
+
+            updateMonthDisplay() {
+                const monthNames = [
+                    'Януари', 'Февруари', 'Март', 'Април', 'Май', 'Юни',
+                    'Юли', 'Август', 'Септември', 'Октомври', 'Ноември', 'Декември'
+                ];
+                document.getElementById('month-year').textContent =
+                    `${monthNames[this.currentMonth]} ${this.currentYear}`;
+            }
+
+            async loadFeasts() {
+                try {
+                    const monthParam = String(this.currentMonth + 1).padStart(2, '0');
+                    const response = await fetch(`/get_cal_data.php?month=${monthParam}`);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    this.feasts = data || [];
+                    // this.displayFeasts();
+                } catch (error) {
+                    console.error('Error loading feasts:', error);
+                    document.getElementById('feasts-container').innerHTML =
+                        '<div class="error">Грешка при зареждане на празниците. Моля, проверете връзката със сървъра.</div>';
+                }
+            }
+
+
+            formatDate(dateString) {
+                try {
+                    const date = new Date(dateString);
+                    const dayNames = ['Неделя', 'Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък', 'Събота'];
+                    const monthNames = [
+                        'януари', 'февруари', 'март', 'април', 'май', 'юни',
+                        'юли', 'август', 'септември', 'октомври', 'ноември', 'декември'
+                    ];
+
+                    const dayName = dayNames[date.getDay()];
+                    const day = date.getDate();
+                    const month = monthNames[date.getMonth()];
+                    const year = date.getFullYear();
+
+                    return `${dayName}, ${day} ${month} ${year}`;
+                } catch (error) {
+                    return dateString;
+                }
+            }
+
+            getFeastForDate(day) {
+                const dateStr = `${this.currentYear}-${String(this.currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                return this.feasts.find(feast => {
+                    const feastDate = new Date(feast.date);
+                    const checkDate = new Date(dateStr);
+                    return feastDate.getDate() === checkDate.getDate() &&
+                           feastDate.getMonth() === checkDate.getMonth();
+                });
+            }
+            showSelectedFeast(feast, date) {
+                const container = document.getElementById('selected-feast');
+                if (feast) {
+                    let fastingLine = '';
+                    if (feast.show_strict_fast) {
+                        fastingLine = `<div class="strict-fasting-text">Строг пост</div>`;
+                    } else if (feast.show_oil) {
+                        fastingLine = `<div class="oil-allowed-text">Пост с олио</div>`;
+                    } else if (feast.show_fish) {
+                        fastingLine = `<div class="fish-allowed-text">Пост с риба и олио</div>`;
+                    }else{
+                        fastingLine = `<div class="no-fasting-text">Блажи се</div>`;
+                    }
+                    container.style.display = 'block';
+                    container.innerHTML = `
+                                <div class="feast-date">${this.formatDate(date)}</div>
+                                <div class="feast-title">${feast.feast_name || feast.name || ''}</div>
+                                 ${fastingLine}
+                            `;
+
+                } else {
+                    container.style.display = 'none';
+                    container.innerHTML = '';
+                }
+            }
+
+            changeMonth(offset) {
+                this.currentMonth += offset;
+                if (this.currentMonth < 0) {
+                    this.currentMonth = 11;
+                    this.currentYear -= 1;
+                } else if (this.currentMonth > 11) {
+                    this.currentMonth = 0;
+                    this.currentYear += 1;
+                }
+                this.updateMonthDisplay();
+                this.loadFeasts().then(() => this.generateCalendar());
+            }
+
+            generateCalendar() {
+                const calendarBody = document.getElementById('calendar-body');
+                calendarBody.innerHTML = '';
+
+                const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+                const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+
+                const startDate = new Date(firstDay);
+                const firstDayOfWeek = firstDay.getDay();
+                const daysToSubtract = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+                startDate.setDate(startDate.getDate() - daysToSubtract);
+
+                const today = new Date();
+                const isCurrentMonth = today.getMonth() === this.currentMonth && today.getFullYear() === this.currentYear;
+                const todayDate = today.getDate();
+
+                let todayCell = null;
+                let todayFeast = null;
+                let todayDateStr = '';
+
+
+                for (let week = 0; week < 6; week++) {
+                    const row = document.createElement('tr');
+
+                    for (let day = 0; day < 7; day++) {
+                        const cellDate = new Date(startDate);
+                        cellDate.setDate(startDate.getDate() + (week * 7) + day);
+
+                        const cell = document.createElement('td');
+                        const dayNumber = cellDate.getDate();
+                        const cellMonth = cellDate.getMonth();
+                        const cellYear = cellDate.getFullYear();
+                        const isOtherMonth = cellMonth !== this.currentMonth;
+                        const isToday = cellYear === today.getFullYear() && cellMonth === today.getMonth() && dayNumber === today.getDate();
+
+                        if (isOtherMonth) {
+                            cell.classList.add('other-month');
+                        }
+                        if (isToday) {
+                            cell.classList.add('today');
+                        }
+
+
+
+                        // Always get feast for the actual cell date
+                        const feast = this.feasts.find(feast => {
+                            const feastDate = new Date(feast.date);
+                            return feastDate.getDate() === dayNumber &&
+                                feastDate.getMonth() === cellMonth &&
+                                feastDate.getFullYear() === cellYear;
+                        });
+
+                        let feastSymbol = '';
+                        if (feast && feast.feast_name && (feast.feast_name[0] === '*' || feast.feast_name[0] === '†')) {
+                            feastSymbol = `<span class="feast-symbol">${feast.feast_name[0]}</span>`;
+                        }
+                        let iconsHtml = '';
+
+                        if (feast && (feast.feast_name?.includes('†') || feast.name?.includes('†'))) {
+                            cell.classList.add('celebration-day');
+                        }
+
+                        if (feast ){
+                            if( feast.show_strict_fast){
+                                iconsHtml = `<div class="fasting-icon strict-icon" title="Strict fasting"><img src="./oil_icon_strikethrough.png" alt="Строг пост" style="width:32px;height:32px;vertical-align:middle;opacity:0.5;"></div>`;
+                            } else if (feast.show_oil) {
+                                iconsHtml = `<div class="fasting-icon oil-icon" title="Oil allowed"><img src="./oil_icon.png" alt="Пост с олио" style="width:32px;height:32px;vertical-align:middle;"></div>`;
+                            } else if (feast.show_fish) {
+                                iconsHtml = `<div class="fasting-icon fish-icon" title="Fish allowed"><img src="./blue_fish_icon.png" alt="Пост с риба и олио" style="width:32px;height:32px;vertical-align:middle;"></div>`;
+                            }
+                        }
+
+                        cell.innerHTML = `
+                                    <div class="day-header">
+                                        <div class="day-number">
+                                            ${feastSymbol}&nbsp${String(dayNumber).padStart(2, '0')}
+                                        </div>
+                                        <div class="fasting-icons">${iconsHtml}</div>
+                                    </div>
+                                `;
+
+                        cell.addEventListener('click', () => {
+                            if (this.selectedCell) {
+                                this.selectedCell.classList.remove('selected-day');
+                            }
+                            cell.classList.add('selected-day');
+                            this.selectedCell = cell;
+                            this.showSelectedFeast(
+                                feast,
+                                `${cellYear}-${String(cellMonth + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`
+                            );
+                        });
+
+                        // Track today's cell for initial selection
+                        if (isToday) {
+                            todayCell = cell;
+                            todayFeast = feast;
+                            todayDateStr = `${cellYear}-${String(cellMonth + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+                        }
+
+                        row.appendChild(cell);
+                    }
+
+                    calendarBody.appendChild(row);
+
+                    const lastCellDate = new Date(startDate);
+                    lastCellDate.setDate(startDate.getDate() + (week * 7) + 6);
+                    if (lastCellDate > lastDay && week >= 4) {
+                        break;
+                    }
+                }
+
+                // Set today as initially selected
+                if (todayCell) {
+                    todayCell.classList.add('selected-day');
+                    this.selectedCell = todayCell;
+                    this.showSelectedFeast(todayFeast, todayDateStr);
+                }
+            }
+        }
+
+        // Add swipe support for month navigation
+        const container = document.querySelector('.calendar-container');
+        let touchStartX = null;
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+            }
+        });
+
+        container.addEventListener('touchend', (e) => {
+            if (touchStartX === null) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const diffX = touchEndX - touchStartX;
+            if (Math.abs(diffX) > 50) { // threshold for swipe
+                if (diffX < 0) {
+                    document.getElementById('next-month').click(); // swipe left: next month
+                } else {
+                    document.getElementById('prev-month').click(); // swipe right: previous month
+                }
+            }
+            touchStartX = null;
+        });
+
+        // Initialize the calendar when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new OrthodoxCalendar();
+        });
+    </script>
+</body>
+</html>
