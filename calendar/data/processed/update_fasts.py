@@ -19,6 +19,7 @@ def update_orthodox_feasts():
 
         # Rule 1: If Wednesday or Friday, set show_fish to true
         if date_obj.weekday() in [2, 4]:  # Wednesday=2, Friday=4
+            row['show_oil'] = 'false'
             row['show_fish'] = 'true'
 
         # Rule 2: From March 03 and next 49 days set show_oil to true
@@ -40,11 +41,32 @@ def update_orthodox_feasts():
         if date_obj.month == 11 and date_obj.day in [15, 17, 18, 19]:
             row['show_oil'] = 'true'
 
-        # Rule 6: From November 15 to December 24 set show_oil to true
+        # Rule 6: From November 15 to December 24 - only oil in the first week, then fish
         nov_15 = datetime(date_obj.year, 11, 15)
-        dec_24 = datetime(date_obj.year, 12, 24)
-        if nov_15 <= date_obj <= dec_24:
+        nov_20 = datetime(date_obj.year, 11, 20)
+        if nov_15 <= date_obj <= nov_20:
             row['show_oil'] = 'true'
+
+        nov_21 = datetime(date_obj.year, 11, 21)
+        nov_23 = datetime(date_obj.year, 11, 23)
+        if nov_21 <= date_obj <= nov_23:
+            row['show_oil'] = 'false'
+            row['show_fish'] = 'true'
+
+        nov_24 = datetime(date_obj.year, 11, 24)
+        dec_19 = datetime(date_obj.year, 12, 10)
+        if nov_24 <= date_obj <= dec_19:
+            if date_obj.weekday() in [2, 4]:  # Wednesday=2, Friday=4
+                row['show_oil'] = 'true'
+            else:
+                row['show_oil'] = 'false'
+            row['show_fish'] = 'true'
+
+        dec_20 = datetime(date_obj.year, 12, 20)
+        dec_24 = datetime(date_obj.year, 12, 24)
+        if dec_20 <= date_obj <= dec_24:
+            row['show_oil'] = 'true'
+        # End of Rule 6
 
         # Rule 7: For December 20, 21, 22, 23, 24 set show_oil to true
         if date_obj.month == 12 and date_obj.day in [20, 21, 22, 23, 24]:
